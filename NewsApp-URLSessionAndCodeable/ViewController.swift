@@ -19,13 +19,43 @@ class ViewController: UIViewController {
         
         self.newsTableView.separatorStyle = .none   
         
-        loadNews()
+        loadNews(apiKey: "761e3bdff43144e9b74b51734d44a5f3")
         
     }
     
-    func loadNews() {
+    func postNews(title : String, desc : String, apiKey : String) {
         
-        URLSession.shared.dataTask(with: URL(string: "https://newsapi.org/v2/everything?q=bitcoin&from=2018-10-09&sortBy=publishedAt&apiKey=761e3bdff43144e9b74b51734d44a5f3")!) { (data, response, error) in
+        let url = URL(string: "https://newsapi.org/")!
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = "POST"
+        urlRequest.setValue(apiKey, forHTTPHeaderField: "api-key")
+        let parameter = ["title" : title, "description" : desc]
+        
+        guard let data = try? JSONSerialization.data(withJSONObject: parameter, options: []) else {
+            return
+        }
+        
+        urlRequest.httpBody = data
+        
+        let session = URLSession.shared
+        session.dataTask(with: urlRequest) { (data, response, error) in
+            
+            
+            if error != nil {
+                print(error ?? "Unknow Error")
+                return
+            }
+            
+            guard let data = data else { return }
+            
+            
+        }.resume()
+        
+    }
+    
+    func loadNews(apiKey : String) {
+        
+        URLSession.shared.dataTask(with: URL(string: "https://newsapi.org/v2/everything?q=bitcoin&from=2018-10-11&sortBy=publishedAt&apiKey=\(apiKey)")!) { (data, response, error) in
             
             if error != nil {
                 print(error ?? "Unknow Error")
@@ -72,7 +102,8 @@ extension ViewController : UITableViewDataSource {
         cell.lblNewsTitle.text = news.title ?? "Network Error"
         
         cell.lblNewsReleasedDate.text = news.publishedAt ?? "Date Error"
-        
+    
+
         cell.ivNews.loadImageUsingUrlString(url: news.urlToImage ?? "")
         
         return cell
