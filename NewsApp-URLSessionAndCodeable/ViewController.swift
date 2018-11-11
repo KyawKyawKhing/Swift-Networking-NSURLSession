@@ -31,6 +31,9 @@ class ViewController: UIViewController {
         urlRequest.setValue(apiKey, forHTTPHeaderField: "api-key")
         let parameter = ["title" : title, "description" : desc]
         
+        let formData = "title=\(title)&description=\(desc)"
+        urlRequest.httpBody = formData.data(using: .utf8)
+        
         guard let data = try? JSONSerialization.data(withJSONObject: parameter, options: []) else {
             return
         }
